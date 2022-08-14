@@ -1,13 +1,13 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
+using NUnit.Framework;
 using TestNinja.Fundamentals;
 
 namespace TestNinja.UnitTests
 {
-    [TestClass]
+    [TestFixture]
     public class ReservationTests
     {
-        [TestMethod]
+        [Test]
         public void CanBeCanceledBy_UserIsAdmin_ReturnsTrue()
         {
             //AAA stands for Arrange, Act, Assert
@@ -19,10 +19,10 @@ namespace TestNinja.UnitTests
             var result = reservation.CanBeCancelledBy(new User() { IsAdmin = true });
 
             //Assert
-            Assert.IsTrue(result);
+            Assert.That(result, Is.True);
         }
 
-        [TestMethod]
+        [Test]
         public void CanBeCanceledBy_Creator_ReturnsTrue()
         {
             var user = new User();
@@ -33,7 +33,7 @@ namespace TestNinja.UnitTests
             Assert.IsTrue(result);
         }
 
-        [TestMethod]
+        [Test]
         public void CanBeCanceledBy_NotAdminNeitherCreator_ReturnsFalse()
         {
             var reservation = new Reservation() { MadeBy = new User() };
