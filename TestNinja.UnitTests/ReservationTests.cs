@@ -26,7 +26,7 @@ namespace TestNinja.UnitTests
         public void CanBeCanceledBy_Creator_ReturnsTrue()
         {
             //Arrange
-            var user = new User { IsAdmin = false };
+            var user = new User();
             var reservation = new Reservation() { MadeBy = user };
 
             //Act
@@ -34,6 +34,20 @@ namespace TestNinja.UnitTests
 
             //Assert
             Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public void CanBeCanceledBy_NotAdminNeitherCreator_ReturnsFalse()
+        {
+            //Arrange
+            var reservation = new Reservation() { MadeBy = new User() };
+            var user = new User();
+            
+            //Act
+            var result = reservation.CanBeCancelledBy(user);
+
+            //Assert
+            Assert.IsFalse(result);
         }
     }
 }
