@@ -21,5 +21,19 @@ namespace TestNinja.UnitTests
             //Assert
             Assert.IsTrue(result);
         }
+
+        [TestMethod]
+        public void CanBeCanceledBy_Creator_ReturnsTrue()
+        {
+            //Arrange
+            var user = new User { IsAdmin = false };
+            var reservation = new Reservation() { MadeBy = user };
+
+            //Act
+            var result = reservation.CanBeCancelledBy(user);
+
+            //Assert
+            Assert.IsTrue(result);
+        }
     }
 }
