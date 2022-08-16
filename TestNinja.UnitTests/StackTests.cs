@@ -25,7 +25,7 @@ namespace TestNinja.UnitTests
         }
 
         [Test]
-        public void Push_ParamIsNull_ArgumentNullException()
+        public void Push_ParamIsNull_ThrowsArgumentNullException()
         {
             var stack = new Stack<object>();
             
@@ -33,7 +33,7 @@ namespace TestNinja.UnitTests
         }
 
         [Test]
-        public void Pop_TheStackIsEmpty_InvalidOperationException()
+        public void Pop_TheStackIsEmpty_ThrowsInvalidOperationException()
         {
             var stack = new Stack<object>();
             
@@ -64,7 +64,7 @@ namespace TestNinja.UnitTests
         }
 
         [Test]
-        public void Pick_WhenStackIsEmpty_InvalidOperationException()
+        public void Pick_WhenStackIsEmpty_ThrowsInvalidOperationException()
         {
             var stack = new Stack<object>();
             
