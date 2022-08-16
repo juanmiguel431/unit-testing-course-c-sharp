@@ -14,21 +14,19 @@ namespace TestNinja.UnitTests
         {
             _customerController = new CustomerController();
         }
-        
+
         [Test]
-        public void GetCustomer_WithParamZero_ReturnNotFoundType()
+        [TestCase(0, typeof(NotFound))]
+        [TestCase(1, typeof(Ok))]
+        public void GetCustomer_WhenCalled_ReturnsType(int a, Type type)
         {
-            var result = _customerController.GetCustomer(0);
+            var result = _customerController.GetCustomer(a);
             
-            Assert.That(result, Is.TypeOf<NotFound>());
-        }
-        
-        [Test]
-        public void GetCustomer_WithParamOne_ReturnsOkType()
-        {
-            var result = _customerController.GetCustomer(1);
+            // NotFound
+            Assert.That(result, Is.TypeOf(type));
             
-            Assert.That(result, Is.TypeOf<Ok>());
+            // NotFound or one of its derivatives
+            // Assert.That(result, Is.InstanceOf(type));
         }
     }
 }
