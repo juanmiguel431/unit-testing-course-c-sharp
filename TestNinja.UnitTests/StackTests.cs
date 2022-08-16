@@ -54,8 +54,9 @@ namespace TestNinja.UnitTests
         [Test]
         public void Pop_WhenCalled_ReturnsTheElementDeleted()
         {
-            var stack = new Stack<object>();
-            var element = new object();
+            var stack = new Stack<string>();
+            stack.Push("a");
+            var element = "b";
             stack.Push(element);
 
             var result = stack.Pop();
