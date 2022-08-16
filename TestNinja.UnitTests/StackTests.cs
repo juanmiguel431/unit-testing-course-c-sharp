@@ -1,0 +1,84 @@
+using NUnit.Framework;
+using TestNinja.Fundamentals;
+
+namespace TestNinja.UnitTests
+{
+    [TestFixture]
+    public class StackTests
+    {
+        [Test]
+        public void Push_AddingOneElement_CountPropertyIsOne()
+        {
+            var stack = new Stack<CustomType>();
+            
+            stack.Push(new CustomType());
+            
+            Assert.That(stack.Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void Push_ParamIsNull_ArgumentNullException()
+        {
+            var stack = new Stack<CustomType>();
+            
+            Assert.That(() => stack.Push(null), Throws.ArgumentNullException);
+        }
+
+        [Test]
+        public void Pop_TheStackIsEmpty_InvalidOperationException()
+        {
+            var stack = new Stack<CustomType>();
+            
+            Assert.That(() => stack.Pop(), Throws.InvalidOperationException);
+        }
+
+        [Test]
+        public void Pop_WhenCalledWithOneElement_CountPropertyIsZero()
+        {
+            var stack = new Stack<CustomType>();
+            stack.Push(new CustomType());
+
+            stack.Pop();
+            
+            Assert.That(stack.Count, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void Pop_WhenCalled_ReturnsTheElementDeleted()
+        {
+            var stack = new Stack<CustomType>();
+            var element = new CustomType();
+            stack.Push(element);
+
+            var result = stack.Pop();
+            
+            Assert.That(result, Is.EqualTo(element));
+        }
+
+        [Test]
+        public void Pick_WhenStackIsEmpty_InvalidOperationException()
+        {
+            var stack = new Stack<CustomType>();
+            
+            Assert.That(() => stack.Peek(), Throws.InvalidOperationException);
+        }
+
+        [Test]
+        public void Pick_StackWithTwoElement_ReturnsLastPushedElement()
+        {
+            var stack = new Stack<CustomType>();
+            stack.Push(new CustomType());
+            var last = new CustomType();
+            stack.Push(last);
+
+            var result = stack.Peek();
+            
+            Assert.That(result, Is.EqualTo(last));
+        }
+    }
+
+    internal sealed class CustomType
+    {
+        
+    } 
+}
