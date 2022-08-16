@@ -6,16 +6,23 @@ namespace TestNinja.UnitTests
     [TestFixture]
     public class HtmlFormatterTests
     {
+        private HtmlFormatter _htmlFormatter;
+        
+        [SetUp]
+        public void SetUp()
+        {
+            _htmlFormatter = new HtmlFormatter();
+        }
+        
         [Test]
         public void FormatAsBold_WhenCalled_ShouldEncloseStringWithsStrongTagElement()
         {
             //AAA
             //Arrange
-            var htmlFormatter = new HtmlFormatter();
             var content = "Hello";
 
             //Act
-            var result = htmlFormatter.FormatAsBold(content);
+            var result = _htmlFormatter.FormatAsBold(content);
 
             //Assert
             //Specific assertion
