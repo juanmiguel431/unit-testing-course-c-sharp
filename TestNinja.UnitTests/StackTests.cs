@@ -15,6 +15,14 @@ namespace TestNinja.UnitTests
             
             Assert.That(stack.Count, Is.EqualTo(1));
         }
+        
+        [Test]
+        public void Count_EmptyStack_ReturnsZero()
+        {
+            var stack = new Stack<object>();
+
+            Assert.That(stack.Count, Is.EqualTo(0));
+        }
 
         [Test]
         public void Push_ParamIsNull_ArgumentNullException()
