@@ -84,5 +84,18 @@ namespace TestNinja.UnitTests
             
             Assert.That(result, Is.EqualTo(last));
         }
+
+        [Test]
+        public void Pick_WhenCalled_DoesNotRemoveObjectsOnTheStack()
+        {
+            var stack = new Stack<object>();
+            stack.Push(new object());
+            stack.Push(new object());
+            stack.Push(new object());
+
+            stack.Peek();
+            
+            Assert.That(stack.Count, Is.EqualTo(3));
+        }
     }
 }
