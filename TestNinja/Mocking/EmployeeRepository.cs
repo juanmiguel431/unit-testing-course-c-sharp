@@ -9,5 +9,10 @@ namespace TestNinja.Mocking
         public EmployeeRepository(EmployeeContext context) : base(context)
         {
         }
+        
+        public override void Remove(Employee item)
+        {
+            Context.Employees.Remove(item);
+        }
     }
 }

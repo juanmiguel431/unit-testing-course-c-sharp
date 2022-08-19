@@ -14,6 +14,7 @@ namespace TestNinja.Mocking
         public ActionResult DeleteEmployee(int id)
         {
             var employee = _unitOfWork.EmployeeRepository.Find(id);
+            if (employee == null) return new NotFoundResult();
             _unitOfWork.EmployeeRepository.Remove(employee);
             _unitOfWork.SaveChanges();
             return RedirectToAction("Employees");
@@ -28,6 +29,7 @@ namespace TestNinja.Mocking
     public class ActionResult { }
  
     public class RedirectResult : ActionResult { }
+    public class NotFoundResult : ActionResult { }
     
     public class EmployeeContext : DbContext
     {

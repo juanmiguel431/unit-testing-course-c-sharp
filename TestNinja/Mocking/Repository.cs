@@ -23,27 +23,27 @@ namespace TestNinja.Mocking
             DbSet = context.Set<TE>();
         }
 
-        public void Remove(TE item)
+        public virtual void Remove(TE item)
         {
             DbSet.Remove(item);
         }
         
-        public void RemoveRange(IEnumerable<TE> items)
+        public virtual void RemoveRange(IEnumerable<TE> items)
         {
             DbSet.RemoveRange(items);
         }
         
-        public void Add(TE item)
+        public virtual void Add(TE item)
         {
             DbSet.Add(item);
         }
         
-        public void AddRange(IEnumerable<TE> items)
+        public virtual void AddRange(IEnumerable<TE> items)
         {
             DbSet.AddRange(items);
         }
         
-        public TE Find(int id)
+        public virtual TE Find(int id)
         {
             return DbSet.Find(id);
         }
