@@ -59,27 +59,7 @@ namespace TestNinja.UnitTests.Mocking
 
             Assert.That(result, Is.EqualTo("1,2"));
         }
-        
-        [Test]
-        public void GetUnprocessedVideosAsCsv_WhenThereAreProcessedAndNotProcessedElements_IgnoreProcessedElements()
-        {
-            _mockFileReader = new Mock<IFileReader>();
-            _mockVideoRepository = new Mock<IVideoRepository>();
 
-            var elements = new List<Video>()
-            {
-                new Video() { Id = 1, IsProcessed = true},
-                new Video() { Id = 2 },
-            };
-            _mockVideoRepository.Setup(r => r.GetNotProcessed()).Returns(elements);
-
-            _videoService = new VideoService(_mockFileReader.Object, _mockVideoRepository.Object);
-
-            var result = _videoService.GetUnprocessedVideosAsCsv();
-
-            Assert.That(result, Is.EqualTo("2"));
-        }
-        
         [Test]
         [Ignore("Instead of Mock DbContext lets Mock the repository")]
         public void GetUnprocessedVideosAsCsv_WhenThereAreElements_IdPropertiesAreSeparatedByCommaV2()
