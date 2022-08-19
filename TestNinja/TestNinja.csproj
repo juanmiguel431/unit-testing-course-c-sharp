@@ -69,6 +69,7 @@
     <Compile Include="Mocking\Program.cs" />
     <Compile Include="Mocking\VideoRepository.cs" />
     <Compile Include="Mocking\VideoService.cs" />
+    <Compile Include="Mocking\WebClientWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
