@@ -10,43 +10,45 @@ namespace TestNinja.UnitTests.Mocking
     public class InstallerHelperTests
     {
         private Mock<IWebClientWrapper> _webClientWrapperMock;
-        
+        private InstallerHelper _installerHelper;
+
         [SetUp]
         public void SetUp()
         {
             _webClientWrapperMock = new Mock<IWebClientWrapper>();
+            _installerHelper = new InstallerHelper(_webClientWrapperMock.Object);
         }
         
         [Test]
         public void DownloadInstaller_WebException_ReturnsFalse()
         {
-            _webClientWrapperMock.Setup(c => c.Download(It.IsAny<string>(), It.IsAny<string>())).Throws<WebException>();
-                
-            var installerHelper = new InstallerHelper(_webClientWrapperMock.Object);
+            _webClientWrapperMock
+                .Setup(c =>
+                    c.Download(It.IsAny<string>(), It.IsAny<string>()))
+                .Throws<WebException>();
 
-            var result = installerHelper.DownloadInstaller("", "", "");
+            var result = _installerHelper.DownloadInstaller("customer", "installer", "destination");
             
-            Assert.That(result, Is.EqualTo(false));
+            Assert.That(result, Is.False);
         }
         
         [Test]
         public void DownloadInstaller_WhenGenericException_ThrowsTheException()
         {
-            _webClientWrapperMock.Setup(c => c.Download(It.IsAny<string>(), It.IsAny<string>())).Throws<Exception>();
-                
-            var installerHelper = new InstallerHelper(_webClientWrapperMock.Object);
-            
-            Assert.That(() => installerHelper.DownloadInstaller("", "", ""), Throws.TypeOf<Exception>());
+            _webClientWrapperMock
+                .Setup(c =>
+                    c.Download(It.IsAny<string>(), It.IsAny<string>()))
+                .Throws<Exception>();
+
+            Assert.That(() => _installerHelper.DownloadInstaller("customer", "installer", "destination"), Throws.TypeOf<Exception>());
         }
 
         [Test]
         public void DownloadInstaller_FileDownloaded_ReturnsTrue()
         {
-            var installerHelper = new InstallerHelper(_webClientWrapperMock.Object);
-
-            var result = installerHelper.DownloadInstaller("", "", "");
+            var result = _installerHelper.DownloadInstaller("customer", "installer", "destination");
             
-            Assert.That(result, Is.EqualTo(true));
+            Assert.That(result, Is.True);
         }
     }
 }
