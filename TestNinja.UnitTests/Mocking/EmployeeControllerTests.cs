@@ -34,5 +34,20 @@ namespace TestNinja.UnitTests.Mocking
             
             Assert.That(result, Is.TypeOf<NotFoundResult>());
         }
+        
+        [Test]
+        public void DeleteEmployee_WhenCalled_DeleteMethodIsCalled()
+        {
+            var unitOfWorkMock = new Mock<IEmployeeUnitOfWork>();
+
+            var employee = new Employee();
+            unitOfWorkMock.Setup(r => r.EmployeeRepository.Find(It.IsAny<int>())).Returns(employee);
+            
+            var employeeController = new EmployeeController(unitOfWorkMock.Object);
+
+            employeeController.DeleteEmployee(1);
+            
+            unitOfWorkMock.Verify(p => p.EmployeeRepository.Remove(employee));
+        }
     }
 }
