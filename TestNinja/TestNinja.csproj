@@ -62,11 +62,14 @@
     <Compile Include="Fundamentals\Stack.cs" />
     <Compile Include="Mocking\BookingHelper.cs" />
     <Compile Include="Mocking\EmployeeController.cs" />
+    <Compile Include="Mocking\EmployeeRepository.cs" />
     <Compile Include="Mocking\FileReader.cs" />
     <Compile Include="Mocking\InstallerHelper.cs" />
     <Compile Include="Mocking\OrderService.cs" />
     <Compile Include="Mocking\Product.cs" />
     <Compile Include="Mocking\Program.cs" />
+    <Compile Include="Mocking\Repository.cs" />
+    <Compile Include="Mocking\EmployeeUnitOfWork.cs" />
     <Compile Include="Mocking\VideoRepository.cs" />
     <Compile Include="Mocking\VideoService.cs" />
     <Compile Include="Mocking\WebClientWrapper.cs" />
