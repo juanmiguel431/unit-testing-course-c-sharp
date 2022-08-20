@@ -115,6 +115,40 @@ namespace TestNinja.UnitTests.Mocking
             Assert.That(result, Is.EqualTo("b"));
         }
         
+        [Test]
+        public void BeforeArrivalDateNoCollapse_ReturnsEmptyString()
+        {
+            _repository.Setup(r => r.GetActiveBookings(1)).Returns(new List<Booking> { _existingBooking }.AsQueryable());
+
+            var result = BookingHelper.OverlappingBookingsExist(new Booking
+            {
+                Id = 1,
+                Status = "Requested",
+                Reference = "a",
+                ArrivalDate = Before(_existingBooking.ArrivalDate, days: 2),
+                DepartureDate = Before(_existingBooking.ArrivalDate, days: 1),
+            });
+
+            Assert.That(result, Is.Empty);
+        }
+        
+        [Test]
+        public void AfterDepartureDateNoCollapse_ReturnsEmptyString()
+        {
+            _repository.Setup(r => r.GetActiveBookings(1)).Returns(new List<Booking> { _existingBooking }.AsQueryable());
+
+            var result = BookingHelper.OverlappingBookingsExist(new Booking
+            {
+                Id = 1,
+                Status = "Requested",
+                Reference = "a",
+                ArrivalDate = After(_existingBooking.DepartureDate, days: 1),
+                DepartureDate = After(_existingBooking.DepartureDate, days: 2),
+            });
+
+            Assert.That(result, Is.Empty);
+        }
+        
         private static DateTime After(DateTime date, int days = 1)
         {
             return date.AddDays(days);
