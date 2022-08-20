@@ -8,7 +8,7 @@ using TestNinja.Mocking;
 namespace TestNinja.UnitTests.Mocking
 {
     [TestFixture]
-    public class BookingHelperTests
+    public class BookingHelperOverlappingBookingsExistTests
     {
         private Mock<IBookingRepository> _bookingRepositoryMock;
 
@@ -20,33 +20,7 @@ namespace TestNinja.UnitTests.Mocking
         }
 
         [Test]
-        public void OverlappingBookingsExistV2_StatusIsCanceled_ReturnsEmptyString()
-        {
-            var result = BookingHelper.OverlappingBookingsExistV2(new Booking { Status = "Cancelled" });
-
-            Assert.That(result, Is.Empty);
-        }
-
-        [Test]
-        public void OverlappingBookingsExistV2_NoOverlappingRecordFound_ReturnsEmptyString()
-        {
-            var result = BookingHelper.OverlappingBookingsExistV2(new Booking());
-
-            Assert.That(result, Is.Empty);
-        }
-
-        [Test]
-        public void OverlappingBookingsExistV2_WhenOverlappingRecordFound_ReturnsReferenceProperty()
-        {
-            _bookingRepositoryMock.Setup(r => r.GetFirstOrDefaultOverlappingBooking(It.IsAny<Booking>())).Returns(new Booking() { Reference = "a" });
-
-            var result = BookingHelper.OverlappingBookingsExistV2(new Booking());
-
-            Assert.That(result, Is.EqualTo("a"));
-        }
-
-        [Test]
-        public void OverlappingBookingsExist_StatusIsCanceled_ReturnsEmptyString()
+        public void StatusIsCanceled_ReturnsEmptyString()
         {
             var result = BookingHelper.OverlappingBookingsExist(new Booking { Status = "Cancelled" });
 
@@ -54,7 +28,7 @@ namespace TestNinja.UnitTests.Mocking
         }
 
         [Test]
-        public void OverlappingBookingsExist_WhenNoOverlapping_ReturnsEmptyString()
+        public void WhenNoOverlapping_ReturnsEmptyString()
         {
             _bookingRepositoryMock.Setup(r => r.GetActiveBookings(It.IsAny<int>()))
                 .Returns(new List<Booking> { }.AsQueryable());
@@ -64,7 +38,7 @@ namespace TestNinja.UnitTests.Mocking
         }
 
         [Test]
-        public void OverlappingBookingsExist_WhenOverlappingCase1_ReturnsReferenceProperty()
+        public void WhenOverlappingCase1_ReturnsReferenceProperty()
         {
             var booking = new Booking
             {
@@ -95,7 +69,7 @@ namespace TestNinja.UnitTests.Mocking
         }
         
         [Test]
-        public void OverlappingBookingsExist_WhenOverlappingCase2_ReturnsReferenceProperty()
+        public void WhenOverlappingCase2_ReturnsReferenceProperty()
         {
             var booking = new Booking
             {
@@ -126,7 +100,7 @@ namespace TestNinja.UnitTests.Mocking
         }
         
         [Test]
-        public void OverlappingBookingsExist_WhenOverlappingCase3_ReturnsReferenceProperty()
+        public void WhenOverlappingCase3_ReturnsReferenceProperty()
         {
             var booking = new Booking
             {
@@ -157,7 +131,7 @@ namespace TestNinja.UnitTests.Mocking
         }
         
         [Test]
-        public void OverlappingBookingsExist_WhenOverlappingCase4_ReturnsReferenceProperty()
+        public void WhenOverlappingCase4_ReturnsReferenceProperty()
         {
             var booking = new Booking
             {
