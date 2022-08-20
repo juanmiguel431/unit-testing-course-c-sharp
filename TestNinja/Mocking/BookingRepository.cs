@@ -5,6 +5,7 @@ namespace TestNinja.Mocking
     public interface IBookingRepository
     {
         Booking GetFirstOrDefaultOverlappingBooking(Booking booking);
+        IQueryable<Booking> GetActiveBookings(int? excludedBookingId = null);
     }
 
     public class BookingRepository : IBookingRepository
@@ -26,6 +27,19 @@ namespace TestNinja.Mocking
                         && booking.DepartureDate <= b.DepartureDate);
 
             return overlappingBooking;
+        }
+
+        public IQueryable<Booking> GetActiveBookings(int? excludedBookingId = null)
+        {
+            var unitOfWork = new UnitOfWork();
+            var bookings =
+                unitOfWork.Query<Booking>()
+                    .Where(b => b.Status != "Cancelled");
+
+            if (excludedBookingId.HasValue)
+                bookings = bookings.Where(p => p.Id != excludedBookingId);
+
+            return bookings;
         }
     }
 }
