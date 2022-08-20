@@ -55,13 +55,11 @@ namespace TestNinja.UnitTests.Mocking
             var result = BookingHelper.OverlappingBookingsExist(new Booking
             {
                 Id = 1,
-                Status = "Requested",
-                Reference = "a",
                 ArrivalDate = Before(_existingBooking.ArrivalDate),
                 DepartureDate = Before(_existingBooking.DepartureDate),
             });
 
-            Assert.That(result, Is.EqualTo("b"));
+            Assert.That(result, Is.EqualTo(_existingBooking.Reference));
         }
 
         [Test]
@@ -72,13 +70,11 @@ namespace TestNinja.UnitTests.Mocking
             var result = BookingHelper.OverlappingBookingsExist(new Booking
             {
                 Id = 1,
-                Status = "Requested",
-                Reference = "a",
                 ArrivalDate = After(_existingBooking.ArrivalDate),
                 DepartureDate = Before(_existingBooking.DepartureDate),
             });
 
-            Assert.That(result, Is.EqualTo("b"));
+            Assert.That(result, Is.EqualTo(_existingBooking.Reference));
         }
         
         [Test]
@@ -89,13 +85,11 @@ namespace TestNinja.UnitTests.Mocking
             var result = BookingHelper.OverlappingBookingsExist(new Booking
             {
                 Id = 1,
-                Status = "Requested",
-                Reference = "a",
                 ArrivalDate = Before(_existingBooking.DepartureDate),
                 DepartureDate = After(_existingBooking.DepartureDate),
             });
 
-            Assert.That(result, Is.EqualTo("b"));
+            Assert.That(result, Is.EqualTo(_existingBooking.Reference));
         }
         
         [Test]
@@ -106,13 +100,11 @@ namespace TestNinja.UnitTests.Mocking
             var result = BookingHelper.OverlappingBookingsExist(new Booking
             {
                 Id = 1,
-                Status = "Requested",
-                Reference = "a",
                 ArrivalDate = Before(_existingBooking.ArrivalDate),
                 DepartureDate = After(_existingBooking.DepartureDate),
             });
 
-            Assert.That(result, Is.EqualTo("b"));
+            Assert.That(result, Is.EqualTo(_existingBooking.Reference));
         }
         
         [Test]
@@ -123,8 +115,6 @@ namespace TestNinja.UnitTests.Mocking
             var result = BookingHelper.OverlappingBookingsExist(new Booking
             {
                 Id = 1,
-                Status = "Requested",
-                Reference = "a",
                 ArrivalDate = Before(_existingBooking.ArrivalDate, days: 2),
                 DepartureDate = Before(_existingBooking.ArrivalDate, days: 1),
             });
@@ -140,8 +130,6 @@ namespace TestNinja.UnitTests.Mocking
             var result = BookingHelper.OverlappingBookingsExist(new Booking
             {
                 Id = 1,
-                Status = "Requested",
-                Reference = "a",
                 ArrivalDate = After(_existingBooking.DepartureDate, days: 1),
                 DepartureDate = After(_existingBooking.DepartureDate, days: 2),
             });
