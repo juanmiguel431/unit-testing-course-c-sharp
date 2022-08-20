@@ -8,7 +8,10 @@ namespace TestNinja.Mocking
 {
     public static class HousekeeperHelper
     {
-        private static readonly UnitOfWork UnitOfWork = new UnitOfWork();
+        public static IUnitOfWork UnitOfWork;
+        public static IEmailManager EmailManager;
+        public static IFileManager FileManager;
+        public static IHousekeeperStatementReportStorage HousekeeperStatementReportStorage;
 
         public static bool SendStatementEmails(DateTime statementDate)
         {
@@ -16,7 +19,7 @@ namespace TestNinja.Mocking
 
             foreach (var housekeeper in housekeepers)
             {
-                if (housekeeper.Email == null)
+                if (string.IsNullOrWhiteSpace(housekeeper.Email))
                     continue;
 
                 var statementFilename = SaveStatement(housekeeper.Oid, housekeeper.FullName, statementDate);
@@ -44,50 +47,13 @@ namespace TestNinja.Mocking
 
         private static string SaveStatement(int housekeeperOid, string housekeeperName, DateTime statementDate)
         {
-            var report = new HousekeeperStatementReport(housekeeperOid, statementDate);
-
-            if (!report.HasData)
-                return string.Empty;
-
-            report.CreateDocument();
-
-            var filename = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                string.Format("Sandpiper Statement {0:yyyy-MM} {1}.pdf", statementDate, housekeeperName));
-
-            report.ExportToPdf(filename);
-
-            return filename;
+            return HousekeeperStatementReportStorage.SaveStatement(housekeeperOid, housekeeperName, statementDate);
         }
 
         private static void EmailFile(string emailAddress, string emailBody, string filename, string subject)
         {
-            var client = new SmtpClient(SystemSettingsHelper.EmailSmtpHost)
-            {
-                Port = SystemSettingsHelper.EmailPort,
-                Credentials =
-                    new NetworkCredential(
-                        SystemSettingsHelper.EmailUsername,
-                        SystemSettingsHelper.EmailPassword)
-            };
-
-            var from = new MailAddress(SystemSettingsHelper.EmailFromEmail, SystemSettingsHelper.EmailFromName,
-                Encoding.UTF8);
-            var to = new MailAddress(emailAddress);
-
-            var message = new MailMessage(from, to)
-            {
-                Subject = subject,
-                SubjectEncoding = Encoding.UTF8,
-                Body = emailBody,
-                BodyEncoding = Encoding.UTF8
-            };
-
-            message.Attachments.Add(new Attachment(filename));
-            client.Send(message);
-            message.Dispose();
-
-            File.Delete(filename);
+            EmailManager.EmailFile(emailAddress, emailBody, filename, subject);
+            FileManager.Delete(filename);
         }
     }
 
@@ -146,7 +112,14 @@ namespace TestNinja.Mocking
         public string StatementEmailBody { get; set; }
     }
 
-    public class HousekeeperStatementReport
+    public interface IHousekeeperStatementReport
+    {
+        bool HasData { get; set; }
+        void CreateDocument();
+        void ExportToPdf(string filename);
+    }
+
+    public class HousekeeperStatementReport : IHousekeeperStatementReport
     {
         public HousekeeperStatementReport(int housekeeperOid, DateTime statementDate)
         {
