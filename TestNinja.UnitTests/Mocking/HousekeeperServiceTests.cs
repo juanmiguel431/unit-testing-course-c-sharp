@@ -70,9 +70,12 @@ namespace TestNinja.UnitTests.Mocking
         }
         
         [Test]
-        public void SendStatementEmails_WhenHouseKeeperEmailIsNull_DoNotExecuteStorageMethods()
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase("   ")]
+        public void SendStatementEmails_WhenHouseKeeperEmailIsNull_DoNotExecuteStorageMethods(string email)
         {
-            _houseKeeper.Email = "";
+            _houseKeeper.Email = email;
 
             _unitOfWork.Setup(u => u.Query<Housekeeper>())
                 .Returns(new List<Housekeeper>
@@ -82,7 +85,9 @@ namespace TestNinja.UnitTests.Mocking
 
             _service.SendStatementEmails(_statementDate);
             
-            _housekeeperStatementReportStorage.VerifyNoOtherCalls();
+            _housekeeperStatementReportStorage.Verify(a =>
+                a.SaveStatement(_houseKeeper.Oid, _houseKeeper.FullName, _statementDate), times: Times.Never);
+
             _emailManager.VerifyNoOtherCalls();
             _fileManager.VerifyNoOtherCalls();
             _xtraMessageBox.VerifyNoOtherCalls();
