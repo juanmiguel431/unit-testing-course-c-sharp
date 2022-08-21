@@ -18,6 +18,7 @@ namespace TestNinja.UnitTests.Mocking
         private HousekeeperService _service;
         private DateTime _statementDate;
         private Housekeeper _houseKeeper;
+        private readonly string _filename = "Sandpiper Statement.pdf";
 
         [SetUp]
         public void SetUp()
@@ -50,7 +51,7 @@ namespace TestNinja.UnitTests.Mocking
 
             _housekeeperStatementReportStorage.Setup(s =>
                     s.SaveStatement(_houseKeeper.Oid, _houseKeeper.FullName, _statementDate))
-                .Returns($"Sandpiper Statement {_statementDate:yyyy-MM} {_houseKeeper.FullName}.pdf");
+                .Returns(_filename);
 
             _service.SendStatementEmails(_statementDate);
 
@@ -94,13 +95,20 @@ namespace TestNinja.UnitTests.Mocking
         }
         
         [Test]
-        public void SendStatementEmails_WhenSaveStatementDoNotReturnFileName_EmailSenderAndFileDeletionIsNotExecuted()
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase(" ")]
+        public void SendStatementEmails_WhenSaveStatementDoNotReturnFileName_EmailSenderAndFileDeletionIsNotExecuted(string filename)
         {
             _unitOfWork.Setup(u => u.Query<Housekeeper>())
                 .Returns(new List<Housekeeper>
                 {
                     _houseKeeper
                 }.AsQueryable());
+            
+            _housekeeperStatementReportStorage.Setup(s =>
+                    s.SaveStatement(_houseKeeper.Oid, _houseKeeper.FullName, _statementDate))
+                .Returns(filename);
 
             _service.SendStatementEmails(_statementDate);
             
@@ -120,7 +128,7 @@ namespace TestNinja.UnitTests.Mocking
 
             _housekeeperStatementReportStorage.Setup(s =>
                     s.SaveStatement(_houseKeeper.Oid, _houseKeeper.FullName, _statementDate))
-                .Returns($"Sandpiper Statement {_statementDate:yyyy-MM} {_houseKeeper.FullName}.pdf");
+                .Returns(_filename);
 
             _emailManager.Setup(m => 
                 m.EmailFile(
