@@ -22,9 +22,9 @@ namespace TestNinja.UnitTests.Mocking
         [SetUp]
         public void SetUp()
         {
+            _unitOfWork = new Mock<IUnitOfWork>();
             _emailManager = new Mock<IEmailManager>();
             _fileManager = new Mock<IFileManager>();
-            _unitOfWork = new Mock<IUnitOfWork>();
             _housekeeperStatementReportStorage = new Mock<IHousekeeperStatementReportStorage>();
             _xtraMessageBox = new Mock<IXtraMessageBox>();
 
