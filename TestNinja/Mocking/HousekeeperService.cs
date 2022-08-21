@@ -1,29 +1,40 @@
 using System;
-using System.IO;
-using System.Net;
-using System.Net.Mail;
-using System.Text;
 
 namespace TestNinja.Mocking
 {
-    public static class HousekeeperService
+    public class HousekeeperService
     {
-        public static IUnitOfWork UnitOfWork;
-        public static IEmailManager EmailManager;
-        public static IFileManager FileManager;
-        public static IHousekeeperStatementReportStorage HousekeeperStatementReportStorage;
-        public static IXtraMessageBox _xtraMessageBox;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IEmailManager _emailManager;
+        private readonly IFileManager _fileManager;
+        private readonly IHousekeeperStatementReportStorage _housekeeperStatementReportStorage;
+        private readonly IXtraMessageBox _xtraMessageBox;
 
-        public static void SendStatementEmails(DateTime statementDate)
+        public HousekeeperService(
+            IUnitOfWork unitOfWork,
+            IEmailManager emailManager,
+            IFileManager fileManager,
+            IHousekeeperStatementReportStorage housekeeperStatementReportStorage,
+            IXtraMessageBox xtraMessageBox)
         {
-            var housekeepers = UnitOfWork.Query<Housekeeper>();
+            _unitOfWork = unitOfWork;
+            _emailManager = emailManager;
+            _fileManager = fileManager;
+            _housekeeperStatementReportStorage = housekeeperStatementReportStorage;
+            _xtraMessageBox = xtraMessageBox;
+        }
+        
+
+        public void SendStatementEmails(DateTime statementDate)
+        {
+            var housekeepers = _unitOfWork.Query<Housekeeper>();
 
             foreach (var housekeeper in housekeepers)
             {
                 if (string.IsNullOrWhiteSpace(housekeeper.Email))
                     continue;
 
-                var statementFilename = HousekeeperStatementReportStorage.SaveStatement(housekeeper.Oid, housekeeper.FullName, statementDate);
+                var statementFilename = _housekeeperStatementReportStorage.SaveStatement(housekeeper.Oid, housekeeper.FullName, statementDate);
 
                 if (string.IsNullOrWhiteSpace(statementFilename))
                     continue;
@@ -42,10 +53,10 @@ namespace TestNinja.Mocking
             }
         }
 
-        private static void EmailFile(string emailAddress, string emailBody, string filename, string subject)
+        private void EmailFile(string emailAddress, string emailBody, string filename, string subject)
         {
-            EmailManager.EmailFile(emailAddress, emailBody, filename, subject);
-            FileManager.Delete(filename);
+            _emailManager.EmailFile(emailAddress, emailBody, filename, subject);
+            _fileManager.Delete(filename);
         }
     }
 

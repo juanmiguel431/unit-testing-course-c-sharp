@@ -15,6 +15,7 @@ namespace TestNinja.UnitTests.Mocking
         private Mock<IEmailManager> _emailManager;
         private Mock<IFileManager> _fileManager;
         private Mock<IXtraMessageBox> _xtraMessageBox;
+        private HousekeeperService _service;
 
         [SetUp]
         public void SetUp()
@@ -25,11 +26,12 @@ namespace TestNinja.UnitTests.Mocking
             _housekeeperStatementReportStorage = new Mock<IHousekeeperStatementReportStorage>();
             _xtraMessageBox = new Mock<IXtraMessageBox>();
 
-            HousekeeperService.EmailManager = _emailManager.Object;
-            HousekeeperService.FileManager = _fileManager.Object;
-            HousekeeperService.UnitOfWork = _unitOfWork.Object;
-            HousekeeperService.HousekeeperStatementReportStorage = _housekeeperStatementReportStorage.Object;
-            HousekeeperService._xtraMessageBox = _xtraMessageBox.Object;
+            _service = new HousekeeperService(
+                _unitOfWork.Object,
+                _emailManager.Object,
+                _fileManager.Object,
+                _housekeeperStatementReportStorage.Object,
+                _xtraMessageBox.Object);
         }
 
         [Test]
@@ -48,7 +50,7 @@ namespace TestNinja.UnitTests.Mocking
                     s.SaveStatement(houseKeeper.Oid, houseKeeper.FullName, statementDate))
                 .Returns($"Sandpiper Statement {statementDate:yyyy-MM} {houseKeeper.FullName}.pdf");
 
-            HousekeeperService.SendStatementEmails(statementDate);
+            _service.SendStatementEmails(statementDate);
 
             _housekeeperStatementReportStorage.Verify(a =>
                 a.SaveStatement(houseKeeper.Oid, houseKeeper.FullName, statementDate));
@@ -77,7 +79,7 @@ namespace TestNinja.UnitTests.Mocking
                     houseKeeper
                 }.AsQueryable());
 
-            HousekeeperService.SendStatementEmails(statementDate);
+            _service.SendStatementEmails(statementDate);
             
             _housekeeperStatementReportStorage.VerifyNoOtherCalls();
             _emailManager.VerifyNoOtherCalls();
@@ -97,7 +99,7 @@ namespace TestNinja.UnitTests.Mocking
                     houseKeeper
                 }.AsQueryable());
 
-            HousekeeperService.SendStatementEmails(statementDate);
+            _service.SendStatementEmails(statementDate);
             
             _emailManager.VerifyNoOtherCalls();
             _fileManager.VerifyNoOtherCalls();
@@ -127,7 +129,7 @@ namespace TestNinja.UnitTests.Mocking
                     It.Is<string>(p => p.Contains(".pdf")),
                     It.IsAny<string>())).Throws<Exception>();
             
-            HousekeeperService.SendStatementEmails(statementDate);
+            _service.SendStatementEmails(statementDate);
             
             _xtraMessageBox.Verify(m => 
                 m.Show(
