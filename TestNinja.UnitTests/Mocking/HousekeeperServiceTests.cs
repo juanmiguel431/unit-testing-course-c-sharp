@@ -16,6 +16,7 @@ namespace TestNinja.UnitTests.Mocking
         private Mock<IFileManager> _fileManager;
         private Mock<IXtraMessageBox> _xtraMessageBox;
         private HousekeeperService _service;
+        private DateTime _statementDate;
 
         [SetUp]
         public void SetUp()
@@ -32,13 +33,14 @@ namespace TestNinja.UnitTests.Mocking
                 _fileManager.Object,
                 _housekeeperStatementReportStorage.Object,
                 _xtraMessageBox.Object);
+
+            _statementDate = new DateTime();
         }
 
         [Test]
         public void SendStatementEmails_WhenThereAreHouseKeeper_SaveStatementAndEmailFileAreExecuted()
         {
             var houseKeeper = new Housekeeper { Oid = 1, FullName = "fullname", Email = "email", StatementEmailBody = "body" };
-            var statementDate = new DateTime();
 
             _unitOfWork.Setup(u => u.Query<Housekeeper>())
                 .Returns(new List<Housekeeper>
@@ -47,13 +49,13 @@ namespace TestNinja.UnitTests.Mocking
                 }.AsQueryable());
 
             _housekeeperStatementReportStorage.Setup(s =>
-                    s.SaveStatement(houseKeeper.Oid, houseKeeper.FullName, statementDate))
-                .Returns($"Sandpiper Statement {statementDate:yyyy-MM} {houseKeeper.FullName}.pdf");
+                    s.SaveStatement(houseKeeper.Oid, houseKeeper.FullName, _statementDate))
+                .Returns($"Sandpiper Statement {_statementDate:yyyy-MM} {houseKeeper.FullName}.pdf");
 
-            _service.SendStatementEmails(statementDate);
+            _service.SendStatementEmails(_statementDate);
 
             _housekeeperStatementReportStorage.Verify(a =>
-                a.SaveStatement(houseKeeper.Oid, houseKeeper.FullName, statementDate));
+                a.SaveStatement(houseKeeper.Oid, houseKeeper.FullName, _statementDate));
 
             _emailManager.Verify(a =>
                 a.EmailFile(
@@ -71,7 +73,6 @@ namespace TestNinja.UnitTests.Mocking
         public void SendStatementEmails_WhenHouseKeeperEmailIsNull_DoNotExecuteStorageMethods()
         {
             var houseKeeper = new Housekeeper { Oid = 1, FullName = "fullname", Email = "", StatementEmailBody = "body" };
-            var statementDate = new DateTime();
 
             _unitOfWork.Setup(u => u.Query<Housekeeper>())
                 .Returns(new List<Housekeeper>
@@ -79,7 +80,7 @@ namespace TestNinja.UnitTests.Mocking
                     houseKeeper
                 }.AsQueryable());
 
-            _service.SendStatementEmails(statementDate);
+            _service.SendStatementEmails(_statementDate);
             
             _housekeeperStatementReportStorage.VerifyNoOtherCalls();
             _emailManager.VerifyNoOtherCalls();
@@ -91,7 +92,6 @@ namespace TestNinja.UnitTests.Mocking
         public void SendStatementEmails_WhenSaveStatementDoNotReturnFileName_EmailSenderAndFileDeletionIsNotExecuted()
         {
             var houseKeeper = new Housekeeper { Oid = 1, FullName = "fullname", Email = "email", StatementEmailBody = "body" };
-            var statementDate = new DateTime();
 
             _unitOfWork.Setup(u => u.Query<Housekeeper>())
                 .Returns(new List<Housekeeper>
@@ -99,7 +99,7 @@ namespace TestNinja.UnitTests.Mocking
                     houseKeeper
                 }.AsQueryable());
 
-            _service.SendStatementEmails(statementDate);
+            _service.SendStatementEmails(_statementDate);
             
             _emailManager.VerifyNoOtherCalls();
             _fileManager.VerifyNoOtherCalls();
@@ -110,7 +110,6 @@ namespace TestNinja.UnitTests.Mocking
         public void SendStatementEmails_WhenEmailManagerThrowsAnException_FileIsNotDeletedAndShowsMessageBox()
         {
             var houseKeeper = new Housekeeper { Oid = 1, FullName = "fullname", Email = "email", StatementEmailBody = "body" };
-            var statementDate = new DateTime();
 
             _unitOfWork.Setup(u => u.Query<Housekeeper>())
                 .Returns(new List<Housekeeper>
@@ -119,8 +118,8 @@ namespace TestNinja.UnitTests.Mocking
                 }.AsQueryable());
 
             _housekeeperStatementReportStorage.Setup(s =>
-                    s.SaveStatement(houseKeeper.Oid, houseKeeper.FullName, statementDate))
-                .Returns($"Sandpiper Statement {statementDate:yyyy-MM} {houseKeeper.FullName}.pdf");
+                    s.SaveStatement(houseKeeper.Oid, houseKeeper.FullName, _statementDate))
+                .Returns($"Sandpiper Statement {_statementDate:yyyy-MM} {houseKeeper.FullName}.pdf");
 
             _emailManager.Setup(m => 
                 m.EmailFile(
@@ -129,7 +128,7 @@ namespace TestNinja.UnitTests.Mocking
                     It.Is<string>(p => p.Contains(".pdf")),
                     It.IsAny<string>())).Throws<Exception>();
             
-            _service.SendStatementEmails(statementDate);
+            _service.SendStatementEmails(_statementDate);
             
             _xtraMessageBox.Verify(m => 
                 m.Show(
