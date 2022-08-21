@@ -18,7 +18,7 @@ namespace TestNinja.UnitTests.Mocking
         private HousekeeperService _service;
         private DateTime _statementDate;
         private Housekeeper _houseKeeper;
-        private readonly string _filename = "Sandpiper Statement.pdf";
+        private string _filename;
 
         [SetUp]
         public void SetUp()
@@ -33,6 +33,11 @@ namespace TestNinja.UnitTests.Mocking
             _unitOfWork.Setup(u => u.Query<Housekeeper>())
                 .Returns(new List<Housekeeper> { _houseKeeper }.AsQueryable());
 
+            _filename = "Sandpiper Statement.pdf";
+            _housekeeperStatementReportStorage.Setup(s =>
+                    s.SaveStatement(_houseKeeper.Oid, _houseKeeper.FullName, _statementDate))
+                .Returns(() => _filename);
+            
             _service = new HousekeeperService(
                 _unitOfWork.Object,
                 _emailManager.Object,
@@ -46,10 +51,6 @@ namespace TestNinja.UnitTests.Mocking
         [Test]
         public void SendStatementEmails_WhenThereAreHouseKeeper_SaveStatementAndEmailFileAreExecuted()
         {
-            _housekeeperStatementReportStorage.Setup(s =>
-                    s.SaveStatement(_houseKeeper.Oid, _houseKeeper.FullName, _statementDate))
-                .Returns(_filename);
-
             _service.SendStatementEmails(_statementDate);
 
             _housekeeperStatementReportStorage.Verify(a =>
@@ -91,9 +92,7 @@ namespace TestNinja.UnitTests.Mocking
         [TestCase(" ")]
         public void SendStatementEmails_WhenSaveStatementDoNotReturnFileName_EmailSenderAndFileDeletionIsNotExecuted(string filename)
         {
-            _housekeeperStatementReportStorage.Setup(s =>
-                    s.SaveStatement(_houseKeeper.Oid, _houseKeeper.FullName, _statementDate))
-                .Returns(filename);
+            _filename = filename;
 
             _service.SendStatementEmails(_statementDate);
             
@@ -105,10 +104,6 @@ namespace TestNinja.UnitTests.Mocking
         [Test]
         public void SendStatementEmails_WhenEmailManagerThrowsAnException_FileIsNotDeletedAndShowsMessageBox()
         {
-            _housekeeperStatementReportStorage.Setup(s =>
-                    s.SaveStatement(_houseKeeper.Oid, _houseKeeper.FullName, _statementDate))
-                .Returns(_filename);
-
             _emailManager.Setup(m => 
                 m.EmailFile(
                     _houseKeeper.Email,
