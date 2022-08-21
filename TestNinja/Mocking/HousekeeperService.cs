@@ -6,7 +6,7 @@ using System.Text;
 
 namespace TestNinja.Mocking
 {
-    public static class HousekeeperHelper
+    public static class HousekeeperService
     {
         public static IUnitOfWork UnitOfWork;
         public static IEmailManager EmailManager;
