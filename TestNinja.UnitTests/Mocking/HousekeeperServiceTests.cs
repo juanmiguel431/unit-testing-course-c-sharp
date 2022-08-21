@@ -29,6 +29,10 @@ namespace TestNinja.UnitTests.Mocking
             _housekeeperStatementReportStorage = new Mock<IHousekeeperStatementReportStorage>();
             _xtraMessageBox = new Mock<IXtraMessageBox>();
 
+            _houseKeeper = new Housekeeper { Oid = 1, FullName = "fullname", Email = "email", StatementEmailBody = "body" };
+            _unitOfWork.Setup(u => u.Query<Housekeeper>())
+                .Returns(new List<Housekeeper> { _houseKeeper }.AsQueryable());
+
             _service = new HousekeeperService(
                 _unitOfWork.Object,
                 _emailManager.Object,
@@ -37,18 +41,11 @@ namespace TestNinja.UnitTests.Mocking
                 _xtraMessageBox.Object);
 
             _statementDate = new DateTime();
-            _houseKeeper = new Housekeeper { Oid = 1, FullName = "fullname", Email = "email", StatementEmailBody = "body" };
         }
 
         [Test]
         public void SendStatementEmails_WhenThereAreHouseKeeper_SaveStatementAndEmailFileAreExecuted()
         {
-            _unitOfWork.Setup(u => u.Query<Housekeeper>())
-                .Returns(new List<Housekeeper>
-                {
-                    _houseKeeper
-                }.AsQueryable());
-
             _housekeeperStatementReportStorage.Setup(s =>
                     s.SaveStatement(_houseKeeper.Oid, _houseKeeper.FullName, _statementDate))
                 .Returns(_filename);
@@ -78,12 +75,6 @@ namespace TestNinja.UnitTests.Mocking
         {
             _houseKeeper.Email = email;
 
-            _unitOfWork.Setup(u => u.Query<Housekeeper>())
-                .Returns(new List<Housekeeper>
-                {
-                    _houseKeeper
-                }.AsQueryable());
-
             _service.SendStatementEmails(_statementDate);
             
             _housekeeperStatementReportStorage.Verify(a =>
@@ -100,12 +91,6 @@ namespace TestNinja.UnitTests.Mocking
         [TestCase(" ")]
         public void SendStatementEmails_WhenSaveStatementDoNotReturnFileName_EmailSenderAndFileDeletionIsNotExecuted(string filename)
         {
-            _unitOfWork.Setup(u => u.Query<Housekeeper>())
-                .Returns(new List<Housekeeper>
-                {
-                    _houseKeeper
-                }.AsQueryable());
-            
             _housekeeperStatementReportStorage.Setup(s =>
                     s.SaveStatement(_houseKeeper.Oid, _houseKeeper.FullName, _statementDate))
                 .Returns(filename);
@@ -120,12 +105,6 @@ namespace TestNinja.UnitTests.Mocking
         [Test]
         public void SendStatementEmails_WhenEmailManagerThrowsAnException_FileIsNotDeletedAndShowsMessageBox()
         {
-            _unitOfWork.Setup(u => u.Query<Housekeeper>())
-                .Returns(new List<Housekeeper>
-                {
-                    _houseKeeper
-                }.AsQueryable());
-
             _housekeeperStatementReportStorage.Setup(s =>
                     s.SaveStatement(_houseKeeper.Oid, _houseKeeper.FullName, _statementDate))
                 .Returns(_filename);
