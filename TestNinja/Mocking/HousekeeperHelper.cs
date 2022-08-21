@@ -12,6 +12,7 @@ namespace TestNinja.Mocking
         public static IEmailManager EmailManager;
         public static IFileManager FileManager;
         public static IHousekeeperStatementReportStorage HousekeeperStatementReportStorage;
+        public static IXtraMessageBox _xtraMessageBox;
 
         public static bool SendStatementEmails(DateTime statementDate)
         {
@@ -22,7 +23,7 @@ namespace TestNinja.Mocking
                 if (string.IsNullOrWhiteSpace(housekeeper.Email))
                     continue;
 
-                var statementFilename = SaveStatement(housekeeper.Oid, housekeeper.FullName, statementDate);
+                var statementFilename = HousekeeperStatementReportStorage.SaveStatement(housekeeper.Oid, housekeeper.FullName, statementDate);
 
                 if (string.IsNullOrWhiteSpace(statementFilename))
                     continue;
@@ -32,13 +33,11 @@ namespace TestNinja.Mocking
 
                 try
                 {
-                    EmailFile(emailAddress, emailBody, statementFilename,
-                        string.Format("Sandpiper Statement {0:yyyy-MM} {1}", statementDate, housekeeper.FullName));
+                    EmailFile(emailAddress, emailBody, statementFilename, $"Sandpiper Statement {statementDate:yyyy-MM} {housekeeper.FullName}");
                 }
                 catch (Exception e)
                 {
-                    XtraMessageBox.Show(e.Message, string.Format("Email failure: {0}", emailAddress),
-                        MessageBoxButtons.OK);
+                    _xtraMessageBox.Show(e.Message, $"Email failure: {emailAddress}", MessageBoxButtons.OK);
                 }
             }
 
@@ -62,9 +61,14 @@ namespace TestNinja.Mocking
         OK
     }
 
-    public class XtraMessageBox
+    public interface IXtraMessageBox
     {
-        public static void Show(string s, string housekeeperStatements, MessageBoxButtons ok)
+        void Show(string s, string housekeeperStatements, MessageBoxButtons ok);
+    }
+
+    public class XtraMessageBox : IXtraMessageBox
+    {
+        public void Show(string s, string housekeeperStatements, MessageBoxButtons ok)
         {
         }
     }

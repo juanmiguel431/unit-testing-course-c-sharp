@@ -14,6 +14,7 @@ namespace TestNinja.UnitTests.Mocking
         private Mock<IHousekeeperStatementReportStorage> _housekeeperStatementReportStorage;
         private Mock<IEmailManager> _emailManager;
         private Mock<IFileManager> _fileManager;
+        private Mock<IXtraMessageBox> _xtraMessageBox;
 
         [SetUp]
         public void SetUp()
@@ -22,11 +23,13 @@ namespace TestNinja.UnitTests.Mocking
             _fileManager = new Mock<IFileManager>();
             _unitOfWork = new Mock<IUnitOfWork>();
             _housekeeperStatementReportStorage = new Mock<IHousekeeperStatementReportStorage>();
+            _xtraMessageBox = new Mock<IXtraMessageBox>();
 
             HousekeeperHelper.EmailManager = _emailManager.Object;
             HousekeeperHelper.FileManager = _fileManager.Object;
             HousekeeperHelper.UnitOfWork = _unitOfWork.Object;
             HousekeeperHelper.HousekeeperStatementReportStorage = _housekeeperStatementReportStorage.Object;
+            HousekeeperHelper._xtraMessageBox = _xtraMessageBox.Object;
         }
 
         [Test]
@@ -59,9 +62,15 @@ namespace TestNinja.UnitTests.Mocking
                 a.SaveStatement(houseKeeper.Oid, houseKeeper.FullName, statementDate));
 
             _emailManager.Verify(a =>
-                a.EmailFile(houseKeeper.Email, houseKeeper.StatementEmailBody, It.IsAny<string>(), It.IsAny<string>()));
+                a.EmailFile(
+                    houseKeeper.Email,
+                    houseKeeper.StatementEmailBody,
+                    It.Is<string>(p => p.Contains(".pdf")),
+                    It.Is<string>(p => p.Contains("Sandpiper Statement"))));
             
             _fileManager.Verify(f => f.Delete(It.IsAny<string>()));
+            
+            _xtraMessageBox.VerifyNoOtherCalls();
 
             Assert.That(result, Is.True);
         }
@@ -83,6 +92,7 @@ namespace TestNinja.UnitTests.Mocking
             _housekeeperStatementReportStorage.VerifyNoOtherCalls();
             _emailManager.VerifyNoOtherCalls();
             _fileManager.VerifyNoOtherCalls();
+            _xtraMessageBox.VerifyNoOtherCalls();
 
             Assert.That(result, Is.True);
         }
@@ -102,12 +112,13 @@ namespace TestNinja.UnitTests.Mocking
             var result = HousekeeperHelper.SendStatementEmails(statementDate);
             _emailManager.VerifyNoOtherCalls();
             _fileManager.VerifyNoOtherCalls();
+            _xtraMessageBox.VerifyNoOtherCalls();
 
             Assert.That(result, Is.True);
         }
         
         [Test]
-        public void SendStatementEmails_WhenEmailManagerThrowsAnException_FileIsNotDeleted()
+        public void SendStatementEmails_WhenEmailManagerThrowsAnException_FileIsNotDeletedAndShowsMessageBox()
         {
             var houseKeeper = new Housekeeper { Oid = 1, FullName = "fullname", Email = "email", StatementEmailBody = "body" };
             var statementDate = new DateTime();
@@ -122,9 +133,20 @@ namespace TestNinja.UnitTests.Mocking
                     s.SaveStatement(houseKeeper.Oid, houseKeeper.FullName, statementDate))
                 .Returns($"Sandpiper Statement {statementDate:yyyy-MM} {houseKeeper.FullName}.pdf");
 
-            _emailManager.Setup(m => m.EmailFile(houseKeeper.Email, houseKeeper.StatementEmailBody, It.IsAny<string>(), It.IsAny<string>())).Throws<Exception>();
+            _emailManager.Setup(m => 
+                m.EmailFile(
+                    houseKeeper.Email,
+                    houseKeeper.StatementEmailBody,
+                    It.Is<string>(p => p.Contains(".pdf")),
+                    It.IsAny<string>())).Throws<Exception>();
             
             var result = HousekeeperHelper.SendStatementEmails(statementDate);
+            
+            _xtraMessageBox.Verify(m => 
+                m.Show(
+                    It.IsAny<string>(),
+                    It.Is<string>(p => p.Contains(houseKeeper.Email)),
+                    MessageBoxButtons.OK));
             
             _fileManager.VerifyNoOtherCalls();
             Assert.That(result, Is.True);
