@@ -14,7 +14,7 @@ namespace TestNinja.Mocking
         public static IHousekeeperStatementReportStorage HousekeeperStatementReportStorage;
         public static IXtraMessageBox _xtraMessageBox;
 
-        public static bool SendStatementEmails(DateTime statementDate)
+        public static void SendStatementEmails(DateTime statementDate)
         {
             var housekeepers = UnitOfWork.Query<Housekeeper>();
 
@@ -40,13 +40,6 @@ namespace TestNinja.Mocking
                     _xtraMessageBox.Show(e.Message, $"Email failure: {emailAddress}", MessageBoxButtons.OK);
                 }
             }
-
-            return true;
-        }
-
-        private static string SaveStatement(int housekeeperOid, string housekeeperName, DateTime statementDate)
-        {
-            return HousekeeperStatementReportStorage.SaveStatement(housekeeperOid, housekeeperName, statementDate);
         }
 
         private static void EmailFile(string emailAddress, string emailBody, string filename, string subject)

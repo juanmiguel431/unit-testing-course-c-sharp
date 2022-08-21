@@ -33,14 +33,6 @@ namespace TestNinja.UnitTests.Mocking
         }
 
         [Test]
-        public void SendStatementEmails_WhenCalled_ReturnsTrue()
-        {
-            var result = HousekeeperHelper.SendStatementEmails(new DateTime());
-
-            Assert.That(result, Is.True);
-        }
-
-        [Test]
         public void SendStatementEmails_WhenThereAreHouseKeeper_SaveStatementAndEmailFileAreExecuted()
         {
             var houseKeeper = new Housekeeper { Oid = 1, FullName = "fullname", Email = "email", StatementEmailBody = "body" };
@@ -56,7 +48,7 @@ namespace TestNinja.UnitTests.Mocking
                     s.SaveStatement(houseKeeper.Oid, houseKeeper.FullName, statementDate))
                 .Returns($"Sandpiper Statement {statementDate:yyyy-MM} {houseKeeper.FullName}.pdf");
 
-            var result = HousekeeperHelper.SendStatementEmails(statementDate);
+            HousekeeperHelper.SendStatementEmails(statementDate);
 
             _housekeeperStatementReportStorage.Verify(a =>
                 a.SaveStatement(houseKeeper.Oid, houseKeeper.FullName, statementDate));
@@ -71,8 +63,6 @@ namespace TestNinja.UnitTests.Mocking
             _fileManager.Verify(f => f.Delete(It.IsAny<string>()));
             
             _xtraMessageBox.VerifyNoOtherCalls();
-
-            Assert.That(result, Is.True);
         }
         
         [Test]
@@ -87,14 +77,12 @@ namespace TestNinja.UnitTests.Mocking
                     houseKeeper
                 }.AsQueryable());
 
-            var result = HousekeeperHelper.SendStatementEmails(statementDate);
+            HousekeeperHelper.SendStatementEmails(statementDate);
             
             _housekeeperStatementReportStorage.VerifyNoOtherCalls();
             _emailManager.VerifyNoOtherCalls();
             _fileManager.VerifyNoOtherCalls();
             _xtraMessageBox.VerifyNoOtherCalls();
-
-            Assert.That(result, Is.True);
         }
         
         [Test]
@@ -109,12 +97,11 @@ namespace TestNinja.UnitTests.Mocking
                     houseKeeper
                 }.AsQueryable());
 
-            var result = HousekeeperHelper.SendStatementEmails(statementDate);
+            HousekeeperHelper.SendStatementEmails(statementDate);
+            
             _emailManager.VerifyNoOtherCalls();
             _fileManager.VerifyNoOtherCalls();
             _xtraMessageBox.VerifyNoOtherCalls();
-
-            Assert.That(result, Is.True);
         }
         
         [Test]
@@ -140,7 +127,7 @@ namespace TestNinja.UnitTests.Mocking
                     It.Is<string>(p => p.Contains(".pdf")),
                     It.IsAny<string>())).Throws<Exception>();
             
-            var result = HousekeeperHelper.SendStatementEmails(statementDate);
+            HousekeeperHelper.SendStatementEmails(statementDate);
             
             _xtraMessageBox.Verify(m => 
                 m.Show(
@@ -149,7 +136,6 @@ namespace TestNinja.UnitTests.Mocking
                     MessageBoxButtons.OK));
             
             _fileManager.VerifyNoOtherCalls();
-            Assert.That(result, Is.True);
         }
     }
 }
